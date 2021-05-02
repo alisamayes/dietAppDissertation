@@ -12,6 +12,8 @@ class User: ObservableObject {
     @Published var name: String = ""
     @Published var password: String = ""
     @Published var goalsCompleted: Double = 0.0
+    @Published var groupGoalsCompleted: Double = 0.0
+    
     
 }
 
@@ -77,36 +79,51 @@ struct HomeView: View {
     
     var body: some View {
         NavigationView{
-            VStack{
-                HStack{
-                    NavigationLink(destination: MealsView(), tag: "Meals", selection:$selection){ EmptyView() }
-                    NavigationLink(destination: GoalsView(), tag: "Goals", selection:$selection){ EmptyView()}
-                    NavigationLink(destination: FriendsView(), tag: "Friends", selection:$selection){ EmptyView() }
-                    NavigationLink(destination: InfoView(), tag: "Info", selection:$selection){ EmptyView() }
+            ScrollView {
+                VStack{
+                    HStack{
+                        NavigationLink(destination: ScheduleView(), tag: "Schedule", selection:$selection){ EmptyView() }
+                        NavigationLink(destination: PlanView(), tag: "Meal Plan", selection:$selection){ EmptyView() }
+                        NavigationLink(destination: GoalsView(), tag: "Goals", selection:$selection){ EmptyView()}
+                        NavigationLink(destination: FriendsView(), tag: "Friends", selection:$selection){ EmptyView() }
+                        NavigationLink(destination: InfoView(), tag: "Info", selection:$selection){ EmptyView() }
+                        
+                        Button("Schedule"){
+                            self.selection = "Schedule"
+                        }
+                        Button("Meal Plan"){
+                            self.selection = "Meal Plan"
+                        }
+                        Button("Goals"){
+                            self.selection = "Goals"
+                        }
+                        Button("Friends"){
+                            self.selection = "Friends"
+                        }
+                        Button("Info"){
+                            self.selection = "Info"
+                        }
+                    }
                     
-                    Button("Meals"){
-                        self.selection = "Meals"
-                    }
-                    Button("Goals"){
-                        self.selection = "Goals"
-                    }
-                    Button("Friends"){
-                        self.selection = "Friends"
-                    }
-                    Button("Info"){
-                        self.selection = "Info"
-                    }
-                }
-                
-                Spacer()
-                
-                Text("Welcome back \(user.name). Keep up the good work!")
-                
-                Text("Your next planned meal is at (connect time from meals tab). Go to the meals tab for more information")
-                          
-                Text("Your next planned shop is at (connect time from meals tab. Go to the meals tab for more information")
-                           
-                Spacer()
+                    //Spacer()
+                    
+                    Text("Welcome back \(user.name). Currently you have completed \(Int(user.goalsCompleted)) of you're personal goals. Head over to the Goals page to set and track these goals.")
+                        .multilineTextAlignment(.center)
+                        .padding(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+                    
+                    Text("Make sure you've visited the Schedule tab to plan out when and what you want for your meals of the day so that you're well prepared. You can also right plan out the shopping list and time here as well. Furthermore you can add youre planned meals in the Meal Plan tab to referance later.")
+                        .multilineTextAlignment(.center)
+                        .padding(/*@START_MENU_TOKEN@*/[.leading, .bottom, .trailing]/*@END_MENU_TOKEN@*/)
+                              
+                    Text("Check out your community goal that you can work together with friends to accomplish in the Friends tab and see how theyre doing. Currently have contributed \(Int(user.groupGoalsCompleted)) towards the community goal.")
+                        .multilineTextAlignment(.center)
+                        .padding(/*@START_MENU_TOKEN@*/[.leading, .bottom, .trailing]/*@END_MENU_TOKEN@*/)
+                    
+                    Text("For more information on how to eat healthily and information on this project please visit the Information tab.")
+                        .multilineTextAlignment(.center)
+                        .padding(/*@START_MENU_TOKEN@*/[.leading, .bottom, .trailing]/*@END_MENU_TOKEN@*/)
+                               
+                }.padding()
             }
         }
         .navigationBarTitle("")
@@ -115,14 +132,12 @@ struct HomeView: View {
     }
 }
 
-struct MealsView: View {
+struct ScheduleView: View {
     @EnvironmentObject var user: User
     @State private var isPresentedB: Bool = false
     @State private var isPresentedL: Bool = false
     @State private var isPresentedD: Bool = false
-    @State private var isPresentedS: Bool = false
     
-    @State private var currentDate = Date()
     @State private var breakfastTime = Date()
     @State private var lunchTime = Date()
     @State private var dinnerTime = Date()
@@ -130,9 +145,6 @@ struct MealsView: View {
     @State private var breakfastPlan: String = ""
     @State private var lunchPlan: String = ""
     @State private var dinnerPlan: String = ""
-    
-    @State private var shoppingList = [String]()
-    @State private var shoppingItem: String = ""
     
     private let defaults = UserDefaults.standard
     
@@ -143,20 +155,22 @@ struct MealsView: View {
             ScrollView {
                 VStack{
                     
-                    Text("Here you can plan out your meals for the week, plan on when to have them and figure out what you need for ingridients to make these meals.")
+                    Text("Here you can plan out your meals for the day. Enter in your planned meals then select the time you wish to start preparing them. Press the Alert button once and a notification will be set for the time currently selected time")
                     
                     //BREAKFAST START
                     Group{//Grouped so they can all fit inside the VStack 10-item limit
                         HStack{
                             Text("Breakfast")
                             
-                            Button("Add"){
+                            Spacer()
+                            
+                            Button("Edit"){
                                 self.isPresentedB = true
                             }
                             
-                            DatePicker("Time", selection: $breakfastTime, displayedComponents: .hourAndMinute)
+                            DatePicker("",selection: $breakfastTime, displayedComponents: .hourAndMinute)
                             
-                            Button("Notification"){
+                            Button("Alert"){
                                 scheduleNotification(mealType: "B")
                             }.padding()
                         }
@@ -169,13 +183,16 @@ struct MealsView: View {
                     Group{
                         HStack{
                             Text("Lunch")
-                            Button("Add"){
+                            
+                            Spacer()
+                            
+                            Button("Edit"){
                                 self.isPresentedL = true
                             }
 
-                            DatePicker("Time", selection: $lunchTime, displayedComponents: .hourAndMinute)
+                            DatePicker("", selection: $lunchTime, displayedComponents: .hourAndMinute)
                             
-                            Button("Notification"){
+                            Button("Alert"){
                                 scheduleNotification(mealType: "L")
                             }.padding()
                         }
@@ -187,13 +204,16 @@ struct MealsView: View {
                     Group{
                         HStack{
                             Text("Dinner")
-                            Button("Add"){
+                            
+                            Spacer()
+                            
+                            Button("Edit"){
                                 self.isPresentedD = true
                             }
                     
-                            DatePicker("Time", selection: $dinnerTime, displayedComponents: .hourAndMinute)
+                            DatePicker("", selection: $dinnerTime, displayedComponents: .hourAndMinute)
                         
-                            Button("Notification"){
+                            Button("Alert"){
                                 scheduleNotification(mealType: "D")
                             }.padding()
                         }
@@ -203,27 +223,7 @@ struct MealsView: View {
                     //DINNER END
                     
                     
-                    Text("")
                     
-                    Text("Now that you have your meals planned out you can make a shopping list for the week so you know what to need. Also set a time so you can make sure youve planned ahead and have the tiem set aside")
-                    
-                    HStack {
-                        Button("Add Item"){
-                            self.shoppingItem = ""
-                            self.isPresentedS = true
-                        }.padding()
-                        
-                        Spacer()
-                    
-                        Button("Clear"){
-                            self.shoppingList.removeAll()
-                            defaults.set(shoppingList, forKey: "Shop")
-                        }.padding()
-                    }
-                    
-                    ForEach(shoppingList, id: \.self){ item in
-                        Text(item)
-                    }
                 }.padding()
             }
             
@@ -239,22 +239,16 @@ struct MealsView: View {
                 defaults.set(dinnerPlan, forKey: "Dinner")
             })
             
-            TextFieldPopup(title: "Add Shopping Item",isShown: $isPresentedS, text: $shoppingItem, onDone: { text in
-                self.shoppingList.append(shoppingItem)
-                defaults.set(shoppingList, forKey: "Shop")
-            })
             
         }
         .onAppear{
             let savedBreakfast = defaults.string(forKey: "Breakfast")
             let savedLunch = defaults.string(forKey: "Lunch")
             let savedDinner = defaults.string(forKey: "Dinner")
-            let savedShopping = defaults.object(forKey: "Shop") as? [String] ?? []
             
             breakfastPlan = savedBreakfast ?? ""
             lunchPlan = savedLunch ?? ""
             dinnerPlan = savedDinner ?? ""
-            shoppingList = savedShopping
         }
     }
     
@@ -276,25 +270,137 @@ struct MealsView: View {
             let notifDate = Calendar.current.dateComponents([.hour, .minute], from: lunchTime)
             Trigger = UNCalendarNotificationTrigger(dateMatching: notifDate, repeats: true)
         }
-        else  if mealType == "D" {
+        else {
             Notif.title = "Get Dinner"
             Notif.body = dinnerPlan
             let notifDate = Calendar.current.dateComponents([.hour, .minute], from: dinnerTime)
             Trigger = UNCalendarNotificationTrigger(dateMatching: notifDate, repeats: true)
         }
-        else {
-            Notif.title = "Shopping run"
-            Notif.body = "Time to go get your weekly shop"
-            let notifDate = Calendar.current.dateComponents([.hour, .minute], from: breakfastTime)
-            Trigger = UNCalendarNotificationTrigger(dateMatching: notifDate, repeats: true)        }
         
         Notif.sound = UNNotificationSound.default
         let Request = UNNotificationRequest(identifier: UUID().uuidString, content: Notif, trigger: Trigger)
         
         UNUserNotificationCenter.current().add(Request)
-        
-        print("Notification button pressed")
-        print("Times wanted is ", breakfastTime)    }
+    }
+}
+
+struct PlanView: View {
+    @EnvironmentObject var user: User
+    @State private var mealsList = [String]()
+    @State private var mealItem: String = ""
+    @State private var isPresentedM: Bool = false
+    
+    @State private var isPresentedS: Bool = false
+    @State private var shoppingList = [String]()
+    @State private var shoppingItem: String = ""
+    @State private var shoppingTime = Date()
+    
+    private let defaults = UserDefaults.standard
+    
+    var body: some View{
+        ZStack{
+            ScrollView {
+                VStack{
+                    Text("This tab will allow you to plan for the week. Please use these lists to keep note of all the meals you have planned planned and the ingridients you will neeed to make them. Furthermore you can plan out your next shopping trip by selecting a time and date and setting a notification to make sure you dont forget and put the time aside for it. ")
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                    
+                    HStack {
+                        Button("Add Item"){
+                            self.mealItem = ""
+                            self.isPresentedM = true
+                        }
+                        
+                        Spacer()
+                        
+                        Button("Undo"){
+                            self.mealsList.popLast()
+                            defaults.set(mealsList, forKey: "Meals")
+                        }
+                    
+                        Button("Clear"){
+                            self.mealsList.removeAll()
+                            defaults.set(mealsList, forKey: "Meals")
+                        }
+                    }
+                    .padding(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+                    
+                    ForEach(mealsList, id: \.self){ item in
+                        Text(item)
+                    }
+                    
+                    Spacer()
+                    Text("")
+                        
+                    HStack {
+                        Button("Add Item"){
+                            self.shoppingItem = ""
+                            self.isPresentedS = true
+                        }
+                        
+                        Spacer()
+                        
+                        Button("Undo"){
+                            self.shoppingList.popLast()
+                            defaults.set(shoppingList, forKey: "Shop")
+                        }
+                    
+                        Button("Clear"){
+                            self.shoppingList.removeAll()
+                            defaults.set(shoppingList, forKey: "Shop")
+                        }
+                    }
+                    .padding(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+                    
+                    ForEach(shoppingList, id: \.self){ item in
+                        Text(item)
+                    }
+                    
+                    HStack{
+                        DatePicker("", selection: $shoppingTime)
+                        
+                        Spacer()
+                        
+                        Button("Alert"){
+                            let Notif = UNMutableNotificationContent()
+                            var Trigger: UNCalendarNotificationTrigger
+
+
+                            Notif.title = "Shopping run"
+                            Notif.body = "Time to go get your weekly shop"
+                            let notifDate = Calendar.current.dateComponents([.month, .day, .hour, .minute], from: shoppingTime)
+                            Trigger = UNCalendarNotificationTrigger(dateMatching: notifDate, repeats: true)
+                            
+                            
+                            Notif.sound = UNNotificationSound.default
+                            let Request = UNNotificationRequest(identifier: UUID().uuidString, content: Notif, trigger: Trigger)
+                            
+                            UNUserNotificationCenter.current().add(Request)
+                        }
+                    }
+                    .padding(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+                }
+            }
+            
+            TextFieldPopup(title: "Add a Meal",isShown: $isPresentedM, text: $mealItem, onDone: { text in
+                self.mealsList.append(mealItem)
+                defaults.set(mealsList, forKey: "Meals")
+            })
+            
+            TextFieldPopup(title: "Add Shopping Item",isShown: $isPresentedS, text: $shoppingItem, onDone: { text in
+                self.shoppingList.append(shoppingItem)
+                defaults.set(shoppingList, forKey: "Shop")
+            })
+            
+        }.onAppear{
+            let savedMeals = defaults.object(forKey: "Meals") as? [String] ?? []
+            let savedShopping = defaults.object(forKey: "Shop") as? [String] ?? []
+            
+            shoppingList = savedShopping
+            mealsList = savedMeals
+        }
+    }
+    
 }
 
 struct GoalsView: View {
@@ -306,98 +412,125 @@ struct GoalsView: View {
     @State private var isPresentedLtg: Bool = false
     
     @State private var goalsTarget = 10.0
-    //@State private var goalsPercent: Double
     
     private let defaults = UserDefaults.standard
+    
+    
     
     
     var body: some View {
         
         ZStack{
-            if user.goalsCompleted < 3.0 {
-                LinearGradient(gradient: Gradient(colors: [.orange, .red ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
+            
+            if user.goalsCompleted == 0.0 {
+                LinearGradient(gradient: Gradient(colors: [.red, .red ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
+            }
+            else if user.goalsCompleted < 3.0 {
+                LinearGradient(gradient: Gradient(colors: [.red, .orange ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
+            }
+            else if user.goalsCompleted < 5.0 {
+                LinearGradient(gradient: Gradient(colors: [.yellow, .orange ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
             }
             else if user.goalsCompleted < 7.0 {
-                LinearGradient(gradient: Gradient(colors: [.orange, Color(.systemTeal) ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
+                LinearGradient(gradient: Gradient(colors: [.yellow, .blue ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
             }
-            else {
-              LinearGradient(gradient: Gradient(colors: [.green, Color(.systemTeal) ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
+            else if user.goalsCompleted < 9.0 {
+                LinearGradient(gradient: Gradient(colors: [.green, .blue ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
             }
-            
+            else if user.goalsCompleted < 10.0 {
+                LinearGradient(gradient: Gradient(colors: [.green, .green ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
+            }
+            else  {
+                LinearGradient(gradient: Gradient(colors: [.green, Color(red: 0.1, green: 1.0, blue: 0.1) ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
+            }
+
             Rectangle()
                 .fill(Color.white)
                 .padding()
                 .ignoresSafeArea()
+            
            
-           VStack{
-            Text("Here you can set yourself personal short and long term goals to help improve your eating behaviorus at your own pace").padding()
-               
-                               
-            HStack{
-                Text("Short term goal").padding()
+
+                VStack{
+                    Text("Here you can set yourself personal short and long term goals to strive for to help improve your eating behaviorus at your own pace").padding([.leading, .bottom, .trailing])
                    
-                Spacer()
-                   
-                   
-                Button(action: {
-                    self.isPresentedStg = true
-                }) {
-                    Text("Set").padding()
-                }
-                
-                Button(action:{
-                    user.goalsCompleted = user.goalsCompleted + 1
-                    stg = ""
-                    defaults.set(user.goalsCompleted, forKey: "goalsCompleted")
-                }) {
-                    Text("Accomplished").padding()
-                }
-            }
-            
-            Text(stg)
-            
-            Spacer()
-            
-            HStack{
-                Text("Long term goals").padding()
-                
-                Spacer()
-                
-                Button(action: {
-                    self.isPresentedLtg = true
-                }) {
-                    Text("Set").padding()
+                Group{//Short term goal group
+                    Text("Short term goal").multilineTextAlignment(.leading).padding(.horizontal)
+                    HStack{
+                        Button(action: {
+                            self.isPresentedStg = true
+                        }) {
+                            Text("Set").padding(.horizontal)
+                        }
+                        
+                        Spacer()
+                        
+                        Button(action:{
+                            user.goalsCompleted = user.goalsCompleted + 1
+                            stg = ""
+                            defaults.set(user.goalsCompleted, forKey: "goalsCompleted")
+                        }) {
+                            Text("Accomplished").padding(.horizontal)
+                        }
+                    }
+                    
+                    Text(stg)
+                        .padding(.horizontal)
                 }
                 
                 Spacer()
-                Spacer()
                 
-                Button(action:{
-                    user.goalsCompleted = user.goalsCompleted + 1
-                    ltg = ""
-                    defaults.set(user.goalsCompleted, forKey: "goalsCompleted")
-                    defaults.set(ltg, forKey: "Ltg")
-                }) {
-                    Text("Accomplished").padding()
+                Group{
+                    Text("Long term goals").multilineTextAlignment(.leading).padding([.top, .leading, .trailing])
+                    HStack{
+                        Button(action: {
+                            self.isPresentedLtg = true
+                        }) {
+                            Text("Set").padding(.horizontal)
+                        }
+                        
+                        Spacer()
+                        
+                        Button(action:{
+                            user.goalsCompleted = user.goalsCompleted + 1
+                            ltg = ""
+                            defaults.set(user.goalsCompleted, forKey: "goalsCompleted")
+                            defaults.set(ltg, forKey: "Ltg")
+                        }) {
+                            Text("Accomplished").padding(.horizontal)
+                        }
+                    }
+                    
+                    Text(ltg)
+                        .padding(.horizontal)
                 }
-            }
-            
-            Text(ltg)
-            
-            Spacer()
-                   
-           //Try and see if a graph for goals:days can be added
-            HStack {
-                Text("Great work \(user.name). So far you have completed \(Int(user.goalsCompleted)) of your goals this week. Keep at it, you're doing great").padding()
-               
-                Button("R"){
-                    user.goalsCompleted = 0.0
-                    defaults.set(user.goalsCompleted, forKey: "goalsCompleted")
+                
+                Spacer()
+                       
+               //Try and see if a graph for goals:days can be added
+                HStack {
+                    if user.goalsCompleted < 1 {
+                        Text("Hello \(user.name). So far you haven't completed any of your goals this week. Make sure you've set them and keep them in mind. You can do it").padding()
+                    }
+                    else if user.goalsCompleted < 5 {
+                        Text("Hey \(user.name). So far you have completed \(Int(user.goalsCompleted)) of your goals. It's a great start but I know you can do better. Make sure you keep at it").padding()
+                    }
+                    else if user.goalsCompleted < 10{
+                        Text("Great work \(user.name). Currently you have accomplished \(Int(user.goalsCompleted)) of your goals this week. You're nearly there!").padding()
+                    }
+                    else {
+                        Text("Amazing job \(user.name)! You managed to complete \(Int(user.goalsCompleted)) of your personal goals. You've done brilliantly but that doesnt mean you have to stop now so go and exceed those expectations").padding()
+                    }
+                        
+                    Button("R"){
+                        user.goalsCompleted = 0.0
+                        defaults.set(user.goalsCompleted, forKey: "goalsCompleted")
+                    }.padding()
+                }
+                
+                    ProgressView("Goals Target", value: user.goalsCompleted, total: goalsTarget).padding([.leading, .bottom, .trailing])
                 }.padding()
-            }
-            
-            ProgressView("Goals Target", value: user.goalsCompleted, total: goalsTarget).padding()
-           }.padding()
+
                    
                    
            TextFieldPopup(title: "Add Short Term Goal",isShown: $isPresentedStg, text: $stg, onDone: { text in
@@ -422,15 +555,15 @@ struct FriendsView: View {
     @EnvironmentObject var user: User
     
     @State private var isPresented: Bool = false
-    @State private var goalsCompleted = 0.0
     @State private var communityGoalTarget = 50.0
+    @State private var friendsTotal = 9.0
     
     var myFriends = [
         Friend(id: 1, name: "Harry", goals: "2"),
-        Friend(id: 2, name: "Amy", goals: "5"),
-        Friend(id: 3, name: "Peter", goals: "6"),
-        Friend(id: 4, name: "Katie", goals: "7"),
-        Friend(id: 5, name: "Tom", goals: "3")
+        Friend(id: 2, name: "Amy", goals: "1"),
+        Friend(id: 3, name: "Peter", goals: "2"),
+        Friend(id: 4, name: "Katie", goals: "3"),
+        Friend(id: 5, name: "Tom", goals: "1")
     ]
     
     private let defaults = UserDefaults.standard
@@ -438,14 +571,26 @@ struct FriendsView: View {
     var body: some View {
         ZStack {
             
-            if self.goalsCompleted < 20.0 {
-                LinearGradient(gradient: Gradient(colors: [.orange, .red ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
+            if user.groupGoalsCompleted == 0.0 {
+                LinearGradient(gradient: Gradient(colors: [.red, .red ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
             }
-            else if self.goalsCompleted < 40.0 {
-                LinearGradient(gradient: Gradient(colors: [.orange, Color(.systemTeal) ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
+            else if user.groupGoalsCompleted < 10.0 {
+                LinearGradient(gradient: Gradient(colors: [.red, .orange ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
             }
-            else {
-              LinearGradient(gradient: Gradient(colors: [.green, Color(.systemTeal) ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
+            else if user.groupGoalsCompleted < 20.0 {
+                LinearGradient(gradient: Gradient(colors: [.yellow, .orange ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
+            }
+            else if user.groupGoalsCompleted < 30.0 {
+                LinearGradient(gradient: Gradient(colors: [.yellow, .blue ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
+            }
+            else if user.groupGoalsCompleted < 40.0 {
+                LinearGradient(gradient: Gradient(colors: [.green, .blue ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
+            }
+            else if user.groupGoalsCompleted < 50.0 {
+                LinearGradient(gradient: Gradient(colors: [.green, .green ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
+            }
+            else  {
+                LinearGradient(gradient: Gradient(colors: [.green, Color(red: 0.1, green: 1.0, blue: 0.1) ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
             }
             
             Rectangle()
@@ -455,7 +600,7 @@ struct FriendsView: View {
     
             VStack{
                 
-                Text("Here you and your friends can work together to set a  comminity goal and a community goal target. Work togehter to complete these and improve everyones health").padding()
+                Text("Here you and your friends can work together to accomplish a larger community goal. Contribute to the to community target to improve your health together").padding([.leading, .bottom, .trailing])
                     
                 
                 Text("Friends List").font(.title)
@@ -469,22 +614,22 @@ struct FriendsView: View {
                 
                 Spacer()
                 
-                Text("Work together with your friends to eat a 100 pieces of fruit this week")
+                Text("Work together with your friends to eat a 50 pieces of fruit this week. So far you have eaten \(Int(user.groupGoalsCompleted + friendsTotal)) pieces as a group")
                 
                 HStack{
                     Text("Community Goals")
                     
                     Button(action:{
-                        goalsCompleted = goalsCompleted + 1
-                        defaults.set(goalsCompleted, forKey: "completed")
+                        user.groupGoalsCompleted = user.groupGoalsCompleted + 1
+                        defaults.set(user.groupGoalsCompleted, forKey: "completed")
                     }) {
                         Text("+")
                             .padding()
                     }
                     
                     Button(action:{
-                        goalsCompleted = 0.0
-                        defaults.set(goalsCompleted, forKey: "completed")
+                        user.groupGoalsCompleted = 0.0
+                        defaults.set(user.groupGoalsCompleted, forKey: "completed")
                     }) {
                         Text("R")
                             .padding()
@@ -492,11 +637,11 @@ struct FriendsView: View {
                     
                 }
                 
-                ProgressView("Goals Target", value: goalsCompleted, total: communityGoalTarget).padding()
+                ProgressView("Goals Target", value: user.groupGoalsCompleted + friendsTotal, total: communityGoalTarget).padding()
             }.padding()
         }.onAppear{
             let savedCompleted = defaults.double(forKey: "completed")
-            goalsCompleted = savedCompleted
+            user.groupGoalsCompleted = savedCompleted
         }
     }
 }
