@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "30C6357D26077BD20041E2EA"
-               BuildableName = "Mindful.app"
+               BuildableName = "Mealwise.app"
                BlueprintName = "Mindful"
                ReferencedContainer = "container:Mealwise.xcodeproj">
             </BuildableReference>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "30C6357D26077BD20041E2EA"
-            BuildableName = "Mindful.app"
+            BuildableName = "Mealwise.app"
             BlueprintName = "Mindful"
             ReferencedContainer = "container:Mealwise.xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "30C6357D26077BD20041E2EA"
-            BuildableName = "Mindful.app"
+            BuildableName = "Mealwise.app"
             BlueprintName = "Mindful"
             ReferencedContainer = "container:Mealwise.xcodeproj">
          </BuildableReference>

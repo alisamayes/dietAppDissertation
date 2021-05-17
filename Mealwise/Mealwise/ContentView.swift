@@ -103,11 +103,11 @@ struct HomeView: View {
                     
                     //Spacer()
                     
-                    Text("Welcome back \(user.name). Currently you have completed \(Int(user.goalsCompleted)) of you're personal goals. Head over to the Goals page to set and track these goals.")
+                    Text("Welcome back \(user.name). Currently you have completed \(Int(user.goalsCompleted)) of your personal goals. Head over to the Goals page to set and track these goals.")
                         .multilineTextAlignment(.center)
                         .padding(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
                     
-                    Text("Make sure you've visited the Schedule tab to plan out when and what you want for your meals of the day so that you're well prepared. You can also right plan out the shopping list and time here as well. Furthermore you can add youre planned meals in the Meal Plan tab to referance later.")
+                    Text("Make sure you've visited the Schedule tab to plan out when and what you want for your meals today so that you're well prepared. Furthermore you can add you're planned meals for the week in the Meal Plan tab to referance later. You can also plan out the shopping list and when to shop here as well.")
                         .multilineTextAlignment(.center)
                         .padding(/*@START_MENU_TOKEN@*/[.leading, .bottom, .trailing]/*@END_MENU_TOKEN@*/)
                               
@@ -133,6 +133,7 @@ struct ScheduleView: View {
     @State private var isPresentedB: Bool = false
     @State private var isPresentedL: Bool = false
     @State private var isPresentedD: Bool = false
+    @State private var isPresentedS: Bool = false
     
     @State private var breakfastTime = Date()
     @State private var lunchTime = Date()
@@ -141,6 +142,7 @@ struct ScheduleView: View {
     @State private var breakfastPlan: String = ""
     @State private var lunchPlan: String = ""
     @State private var dinnerPlan: String = ""
+    @State private var snackPlan: String = ""
     
     private let defaults = UserDefaults.standard
     
@@ -151,7 +153,7 @@ struct ScheduleView: View {
             ScrollView {
                 VStack{
                     
-                    Text("Here you can plan out your meals for the day. Enter in your planned meals then select the time you wish to start preparing them. Press the Alert button once and a notification will be set for the time currently selected time")
+                    Text("Here you can plan out your meals for the day. Enter in your planned meals then select the time you wish to start preparing them. Press the Alert button once and a notification will be set for the time currently selected")
                     
                     //BREAKFAST START
                     Group{//Grouped so they can all fit inside the VStack 10-item limit
@@ -173,6 +175,7 @@ struct ScheduleView: View {
                         
                         Text(breakfastPlan)
                     }
+                    .padding(.vertical)
                     //BREAKFAST END
                         
                     //LUNCH START
@@ -194,6 +197,7 @@ struct ScheduleView: View {
                         }
                         Text(lunchPlan)
                     }
+                    .padding(.vertical)
                     //LUNCH END
                         
                     //DINNER START
@@ -216,8 +220,26 @@ struct ScheduleView: View {
                         
                         Text(dinnerPlan)
                     }
+                    .padding(.vertical)
                     //DINNER END
                     
+                    //SNACK START
+                    Group{
+                        HStack{
+                            Text("Snacks")
+                            
+                            Button("Edit"){
+                                self.isPresentedS = true
+                            }
+                            
+                            Spacer()
+                            
+                        }
+                        
+                        Text(snackPlan)
+                    }
+                    .padding(.bottom)
+                    //SNACK END
                     
                     
                 }.padding()
@@ -235,16 +257,24 @@ struct ScheduleView: View {
                 defaults.set(dinnerPlan, forKey: "Dinner")
             })
             
+            TextFieldPopup(title: "Add Snacks - Remember to try and pick healthier snacks such as nuts and fruit and stay away from crisps and biscuits",isShown: $isPresentedS, text: $snackPlan, onDone: { text in
+                defaults.set(snackPlan, forKey: "Snack")
+            })
+            
             
         }
         .onAppear{
             let savedBreakfast = defaults.string(forKey: "Breakfast")
             let savedLunch = defaults.string(forKey: "Lunch")
             let savedDinner = defaults.string(forKey: "Dinner")
+            let savedSnack = defaults.string(forKey: "Snack")
+            
+            
             
             breakfastPlan = savedBreakfast ?? ""
             lunchPlan = savedLunch ?? ""
             dinnerPlan = savedDinner ?? ""
+            snackPlan = savedSnack ?? ""
         }
     }
     
@@ -255,22 +285,22 @@ struct ScheduleView: View {
         //var Trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)
 
         if mealType == "B" {
-            Notif.title = "Get Breakfast"
+            Notif.title = "Time for Breakfast"
             Notif.body = breakfastPlan
             let notifDate = Calendar.current.dateComponents([.hour, .minute], from: breakfastTime)
-            Trigger = UNCalendarNotificationTrigger(dateMatching: notifDate, repeats: true)
+            Trigger = UNCalendarNotificationTrigger(dateMatching: notifDate, repeats: false)
         }
         else if mealType == "L"{
-            Notif.title = "Get Lunch"
-            Notif.body = "Meal: \(lunchPlan), Time:\(lunchTime)"
+            Notif.title = "Its Lunch time"
+            Notif.body = lunchPlan
             let notifDate = Calendar.current.dateComponents([.hour, .minute], from: lunchTime)
-            Trigger = UNCalendarNotificationTrigger(dateMatching: notifDate, repeats: true)
+            Trigger = UNCalendarNotificationTrigger(dateMatching: notifDate, repeats: false)
         }
         else {
-            Notif.title = "Get Dinner"
+            Notif.title = "Time to start Dinner!"
             Notif.body = dinnerPlan
             let notifDate = Calendar.current.dateComponents([.hour, .minute], from: dinnerTime)
-            Trigger = UNCalendarNotificationTrigger(dateMatching: notifDate, repeats: true)
+            Trigger = UNCalendarNotificationTrigger(dateMatching: notifDate, repeats: false)
         }
         
         Notif.sound = UNNotificationSound.default
@@ -297,10 +327,13 @@ struct PlanView: View {
         ZStack{
             ScrollView {
                 VStack{
-                    Text("This tab will allow you to plan for the week. Please use these lists to keep note of all the meals you have planned planned and the ingridients you will neeed to make them. Furthermore you can plan out your next shopping trip by selecting a time and date and setting a notification to make sure you dont forget and put the time aside for it. ")
+                    Text("This tab will allow you to plan for the week. Please use these lists to keep note of all the meals you have planned and the ingridients you will neeed to make them. Furthermore you can plan out your next shopping trip by selecting a time and date and setting a notification to make sure you dont forget and put the time aside for it. ")
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                     
+                    Text("Weekly Meal Plan")
+                        .multilineTextAlignment(.leading)
+                        .padding(.top)
                     HStack {
                         Button("Add Item"){
                             self.mealItem = ""
@@ -319,15 +352,18 @@ struct PlanView: View {
                             defaults.set(mealsList, forKey: "Meals")
                         }
                     }
-                    .padding(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+                    .padding(/*@START_MENU_TOKEN@*/[.leading, .bottom, .trailing]/*@END_MENU_TOKEN@*/)
                     
                     ForEach(mealsList, id: \.self){ item in
                         Text(item)
                     }
+                    .padding(.bottom)
                     
-                    Spacer()
                     Text("")
-                        
+                        .padding(.vertical)
+                    
+                    Text("Shopping List")
+                        .padding(.top)
                     HStack {
                         Button("Add Item"){
                             self.shoppingItem = ""
@@ -365,7 +401,7 @@ struct PlanView: View {
                             Notif.title = "Shopping run"
                             Notif.body = "Time to go get your weekly shop"
                             let notifDate = Calendar.current.dateComponents([.month, .day, .hour, .minute], from: shoppingTime)
-                            Trigger = UNCalendarNotificationTrigger(dateMatching: notifDate, repeats: true)
+                            Trigger = UNCalendarNotificationTrigger(dateMatching: notifDate, repeats: false)
                             
                             
                             Notif.sound = UNNotificationSound.default
@@ -440,15 +476,15 @@ struct GoalsView: View {
                 LinearGradient(gradient: Gradient(colors: [.green, Color(red: 0.1, green: 1.0, blue: 0.1) ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
             }
 
-            Rectangle()
-                .fill(Color.white)
+            RoundedRectangle(cornerRadius: 25, style: .circular)
+                .fill(Color(UIColor.systemBackground))
                 .padding()
                 .ignoresSafeArea()
             
            
 
                 VStack{
-                    Text("Here you can set yourself personal short and long term goals to strive for to help improve your eating behaviorus at your own pace").padding([.leading, .bottom, .trailing])
+                    Text("Here you can set yourself personal short and long term goals to strive for to help improve your eating behaviours at your own pace").padding([.leading, .bottom, .trailing])
                    
                 Group{//Short term goal group
                     Text("Short term goal").multilineTextAlignment(.leading).padding(.horizontal)
@@ -511,9 +547,15 @@ struct GoalsView: View {
                     else if user.goalsCompleted < 5 {
                         Text("Hey \(user.name). So far you have completed \(Int(user.goalsCompleted)) of your goals. It's a great start but I know you can do better. Make sure you keep at it").padding()
                     }
-                    else if user.goalsCompleted < 10{
-                        Text("Great work \(user.name). Currently you have accomplished \(Int(user.goalsCompleted)) of your goals this week. You're nearly there!").padding()
+                    
+                    else if user.goalsCompleted == 5{
+                        Text("\(user.name) you have now accomplished \(Int(user.goalsCompleted)) of your goals this week. You're half way there there!").padding()
                     }
+                    
+                    else if user.goalsCompleted < 10{
+                        Text("Great work \(user.name). Currently you have accomplished \(Int(user.goalsCompleted)) of your goals this week. You're in the final stretch to reach the 10 goal target!").padding()
+                    }
+                    
                     else {
                         Text("Amazing job \(user.name)! You managed to complete \(Int(user.goalsCompleted)) of your personal goals. You've done brilliantly but that doesnt mean you have to stop now so go and exceed those expectations").padding()
                     }
@@ -552,14 +594,14 @@ struct FriendsView: View {
     
     @State private var isPresented: Bool = false
     @State private var communityGoalTarget = 50.0
-    @State private var friendsTotal = 9.0
+    @State private var friendsTotal = 42.0
     
     var myFriends = [
-        Friend(id: 1, name: "Harry", goals: "2"),
-        Friend(id: 2, name: "Amy", goals: "1"),
-        Friend(id: 3, name: "Peter", goals: "2"),
-        Friend(id: 4, name: "Katie", goals: "3"),
-        Friend(id: 5, name: "Tom", goals: "1")
+        Friend(id: 1, name: "Harry", goals: "8"),
+        Friend(id: 2, name: "Amy", goals: "10"),
+        Friend(id: 3, name: "Peter", goals: "7"),
+        Friend(id: 4, name: "Katie", goals: "9"),
+        Friend(id: 5, name: "Tom", goals: "6")
     ]
     
     private let defaults = UserDefaults.standard
@@ -567,36 +609,36 @@ struct FriendsView: View {
     var body: some View {
         ZStack {
             
-            if user.groupGoalsCompleted == 0.0 {
+            if user.groupGoalsCompleted + friendsTotal == 0.0 {
                 LinearGradient(gradient: Gradient(colors: [.red, .red ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
             }
-            else if user.groupGoalsCompleted < 10.0 {
+            else if user.groupGoalsCompleted + friendsTotal < 10.0 {
                 LinearGradient(gradient: Gradient(colors: [.red, .orange ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
             }
-            else if user.groupGoalsCompleted < 20.0 {
+            else if user.groupGoalsCompleted + friendsTotal < 20.0 {
                 LinearGradient(gradient: Gradient(colors: [.yellow, .orange ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
             }
-            else if user.groupGoalsCompleted < 30.0 {
+            else if user.groupGoalsCompleted + friendsTotal < 30.0 {
                 LinearGradient(gradient: Gradient(colors: [.yellow, .blue ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
             }
-            else if user.groupGoalsCompleted < 40.0 {
+            else if user.groupGoalsCompleted + friendsTotal < 40.0 {
                 LinearGradient(gradient: Gradient(colors: [.green, .blue ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
             }
-            else if user.groupGoalsCompleted < 50.0 {
+            else if user.groupGoalsCompleted + friendsTotal < 50.0 {
                 LinearGradient(gradient: Gradient(colors: [.green, .green ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
             }
             else  {
                 LinearGradient(gradient: Gradient(colors: [.green, Color(red: 0.1, green: 1.0, blue: 0.1) ]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
             }
             
-            Rectangle()
-                .fill(Color.white)
+            RoundedRectangle(cornerRadius: 25, style: .circular)
+                .fill(Color(UIColor.systemBackground))
                 .padding()
                 .ignoresSafeArea()
     
             VStack{
                 
-                Text("Here you and your friends can work together to accomplish a larger community goal. Contribute to the to community target to improve your health together").padding([.leading, .bottom, .trailing])
+                Text("Here you and your friends can work together to accomplish a larger community goal. Contribute to the community target to improve your health together").padding([.leading, .bottom, .trailing])
                     
                 
                 Text("Friends List").font(.title)
@@ -610,7 +652,7 @@ struct FriendsView: View {
                 
                 Spacer()
                 
-                Text("Work together with your friends to eat a 50 pieces of fruit this week. So far you have eaten \(Int(user.groupGoalsCompleted + friendsTotal)) pieces as a group")
+                Text("Work together with your friends to eat at least 50 pieces of fruit this week. So far you have eaten \(Int(user.groupGoalsCompleted + friendsTotal)) pieces as a group. You personally have eaten \(Int(user.groupGoalsCompleted))")
                 
                 HStack{
                     Text("Community Goals")
@@ -654,21 +696,24 @@ struct InfoView: View {
             VStack(alignment: .leading) {
                 Text("Benefits to staying healthy")
                     .font(.title)
-                Text("Our food provides us with the energy we need to run, grow and repair. Maintiang a healthy diet is important to avoid negative health effects such as diabetes, obesity and many more. It also can have an impact on our mental health and good, healthy diets are shown to have a positive effect.")
+                Text("Our food provides our bodies with the energy needed to run, grow and repair. Ensuring we keep a good varied supply of food therefore is a key factor in making sure we are healthy and able to carry out many different things in our life. Maintiang a healthy diet is also important to help avoid negative health effects such as diabetes, obesity and many more which can occur when unbalanced. Issues such as these can have a great impact on our daily lives and should be avoided when possible. Unhealthy diets also can have a negative impact on our mental health not just our physical. Therefore it is crucial to make sure we can obtain and maintain a healthy one.")
+                    .padding(.bottom)
             
             
             
                 Text("Tips to a healthy diet")
                     .font(.title)
-                Text("Eat 5 of your fruit and veg daily.  Avoid eating to much or too little each day. Make sure you have a good balance of food groups. While snacking can be healthy, make sure you consume only good snacks such as fruit, nuts and similar and avoids bad ones such as sweets and crisp. Try to develop a routine for when to eat which will assit controlling hunger.")
+                Text("There are many factors involved but the main ones are to eat a varied and balanced diet to get nutrients from many differnent food groups. Make sure you're getting enough calories to take care of yourself but not over or undereat. Eat 5 of your fruit and veg daily as these are high in vitamins, fibre and other important nutrients. Snacking can be healthy if done corretly to help increase nutrient levels and sustain yourself until meals when needed. If you do choose to snack make sure you're eating healthy options such as fruits, nuts, fat free yoghurts... as opposed to unhealthy options such as chocolate, crisps and biscuits. When planning meals sometimes trying healtheir alternatives can help maintain a healthy diet such swapping potato for sweet potato, milk chocolate for dark and so on. Finally try to develop a routine for when to eat and how much. Our stomachs are muscles and can 'stretch' and 'shrink' based on what they're used to. A good planned routines makes our stoamchs more accustomed to regular times and amounts meaning they can help you control hunger more")
+                    .padding(.bottom)
             
                 Text("Aims of project")
                     .font(.title)
-                Text("The aim of this project is to see if persuasive technology can help users to move towards healthier eating behaviours by targeting key identified obstacles. It will use technuiqes such as reinforcement, promts, facilitators and so on.")
+                Text("The aim of this project is to see if persuasive technology can help users to move towards healthier eating behaviours by targeting key identified obstacles. An initial roundof interviews were carried out on the target group to find common issues they found to keeping a healthy diet. This app is designed to use some persuasive technuiqes such as positive reinforcement, co-operative and personal goal rewarding, authoratative language and so on to facilitate the user in overcoming the obstacles. If it works correctly it should encourage healthy behaviours and help discourage unhealthy ones")
+                    .padding(.bottom)
             
                 Text("Disclaimers and Contact Info ")
                     .font(.title)
-                Text("Firstly thank you so much for agreeing to take part in this study. I just want to make you aware that if for any reason you feel as if you are unable to complete it then that is ok. It is entirely voulantary and you can stop when ever you want, just please let me know.")
+                Text("Firstly thank you so much for agreeing to take part in this project. I just want to make you aware that if for any reason you feel as if you are unable to complete it then that is ok. It is entirely voulantary and you can stop when ever you want, just please let me know.")
                 Text("Email: am240@bath.ac.uk")
                 
             }

@@ -284,6 +284,7 @@
 				CODE_SIGN_ENTITLEMENTS = Mealwise.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "\"Mealwise/Preview Content\"";
 				DEVELOPMENT_TEAM = 49GCUDJJS8;
 				ENABLE_PREVIEWS = YES;
@@ -293,7 +294,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = BathCompSciDissertation.Mealwise;
 				PRODUCT_NAME = Mealwise;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -310,6 +311,7 @@
 				CODE_SIGN_ENTITLEMENTS = Mealwise.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "\"Mealwise/Preview Content\"";
 				DEVELOPMENT_TEAM = 49GCUDJJS8;
 				ENABLE_PREVIEWS = YES;
@@ -319,7 +321,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = BathCompSciDissertation.Mealwise;
 				PRODUCT_NAME = Mealwise;
 				PROVISIONING_PROFILE_SPECIFIER = "";
