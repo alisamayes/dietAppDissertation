@@ -1,5 +1,4 @@
-# This is the README File for the Mealwise IOS application which was made as the proposed solution to the accompanying project: "The use of persuasive techniques in helping
-change toward healthy eating behaviours"
+# This is the README File for the Mealwise IOS application which was made as the proposed solution to the accompanying project: "The use of persuasive techniques in helping change toward healthy eating behaviours"
 
 This IOS application was written in the Swift language and uses SwiftUI as well for UI features. It was developed in Xcode
 
